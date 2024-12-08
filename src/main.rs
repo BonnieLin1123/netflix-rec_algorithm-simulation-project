@@ -6,7 +6,7 @@ use read_file::Movie;
 use build_graph::{build_graph, calculate_similarity};
 
 fn main() {
-    let file_path = "netflix_titles 2.csv"; // Replace with your actual file path
+    let file_path = "netflix_titles 2.csv"; 
     let movies = Movie::read_and_clean(file_path);
 
     if movies.is_empty() {

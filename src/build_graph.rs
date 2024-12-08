@@ -1,15 +1,15 @@
 use std::collections::HashMap;
 use crate::read_file::Movie;
-use crate::analyze_file::{analyze_type, analyze_director, analyze_genres, analyze_release_year, analyze_cast, analyze_duration};
+use crate::analyze_file::{analyze_type, analyze_director, analyze_country, analyze_release_year, analyze_rating, analyze_listed_in};
 
 pub fn calculate_similarity(movie1: &Movie, movie2: &Movie) -> f32 {
     let mut score = 0.0;
     score += analyze_type(&movie1.movie_type, &movie2.movie_type);
     score += analyze_director(&movie1.director, &movie2.director);
-    score += analyze_genres(&movie1.listed_in, &movie2.listed_in);
+    score += analyze_country(&movie1.country, &movie2.country);
     score += analyze_release_year(movie1.release_year, movie2.release_year);
-    score += analyze_cast(&movie1.cast, &movie2.cast);
-    score += analyze_duration(&movie1.duration, &movie2.duration);
+    score += analyze_rating(&movie1.rating, &movie2.rating);
+    score += analyze_listed_in(&movie1.listed_in, &movie2.listed_in);
     score
 }
 

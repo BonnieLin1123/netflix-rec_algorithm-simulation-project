@@ -3,29 +3,42 @@ mod analyze_file;
 mod build_graph;
 
 use read_file::Movie;
-use build_graph::{build_graph, compute_pagerank};
+use build_graph::{build_graph, calculate_similarity};
 
 fn main() {
-    let file_path = "netflix_titles 2.csv"; // Update to the correct path
+    let file_path = "netflix_titles 2.csv"; // Replace with your actual file path
     let movies = Movie::read_and_clean(file_path);
 
-    // Build the graph
-    let threshold = 0.3; // Adjust threshold for similarity
-    let graph = build_graph(&movies, threshold);
+    if movies.is_empty() {
+        println!("No valid movies were loaded from the file.");
+        return;
+    }
 
-    // Compute PageRank
-    let damping_factor = 0.85;
-    let iterations = 100;
-    let ranks = compute_pagerank(&graph, damping_factor, iterations);
+    // Hardcoded movie title
+    let input_title = "Dick Johnson Is Dead";
 
-    // Recommend top 5 movies
-    let recommendations: Vec<_> = ranks.iter()
-        .take(5)
-        .map(|(title, rank)| (title.clone(), *rank))
-        .collect();
+    // Find the selected movie
+    if let Some(selected_movie) = movies.iter().find(|m| m.title == input_title) {
+        println!("Comparing '{}' to all other movies...\n", selected_movie.title);
 
-    println!("Top 5 recommended movies:");
-    for (title, rank) in recommendations {
-        println!("{} (PageRank Score: {:.4})", title, rank);
+        // Calculate similarity with all other movies
+        let mut similarities = Vec::new();
+        for movie in &movies {
+            if movie.title != selected_movie.title {
+                let similarity = calculate_similarity(selected_movie, movie);
+                similarities.push((movie.title.clone(), similarity));
+            }
+        }
+
+        // Sort by similarity scores in descending order
+        similarities.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap());
+
+        // Print the top 5 most similar movies
+        println!("Top 5 similar movies:");
+        for (title, score) in similarities.iter().take(5) {
+            println!("{} (Similarity Score: {:.4})", title, score);
+        }
+    } else {
+        println!("Movie '{}' not found in the dataset.", input_title);
     }
 }

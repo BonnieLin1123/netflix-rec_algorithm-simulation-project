@@ -52,7 +52,7 @@ fn main() {
         .cloned()
         .collect();
 
-    let threshold = 0.5; // Higher threshold for smaller graph
+    let threshold = 0.3; 
     let graph = build_graph(&sampled_movies, threshold);
 
     let damping_factor = 0.85; // Standard damping factor
@@ -64,6 +64,6 @@ fn main() {
     let mut ranked_movies: Vec<_> = ranks.iter().collect();
     ranked_movies.sort_by(|a, b| b.1.partial_cmp(a.1).unwrap());
     for (title, rank) in ranked_movies.iter().take(5) {
-        println!("{}: \n(PageRank Score: {:.5})" , title, rank);
+        println!("{}: \n(PageRank Score: {:.15})" , title, rank);
     }
 }

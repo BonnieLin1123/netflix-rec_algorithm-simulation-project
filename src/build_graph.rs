@@ -4,13 +4,14 @@ use crate::analyze_file::{analyze_type, analyze_director, analyze_country, analy
 
 pub fn calculate_similarity(movie1: &Movie, movie2: &Movie) -> f32 {
     let mut score = 0.0;
+    let max_possible_score = 6.0;
     score += analyze_type(&movie1.movie_type, &movie2.movie_type);
     score += analyze_director(&movie1.director, &movie2.director);
     score += analyze_country(&movie1.country, &movie2.country);
     score += analyze_release_year(movie1.release_year, movie2.release_year);
     score += analyze_rating(&movie1.rating, &movie2.rating);
     score += analyze_listed_in(&movie1.listed_in, &movie2.listed_in);
-    score
+    score/max_possible_score
 }
 
 pub fn build_graph(movies: &Vec<Movie>, threshold: f32) -> HashMap<String, Vec<(String, f32)>> {
@@ -29,12 +30,17 @@ pub fn build_graph(movies: &Vec<Movie>, threshold: f32) -> HashMap<String, Vec<(
 
         // Normalize edges
         let total_weight: f32 = edges.iter().map(|(_, weight)| weight).sum();
-        let normalized_edges = edges
+        if total_weight > 0.0 {
+            let normalized_edges: Vec<_> = edges
             .into_iter()
             .map(|(title, weight)| (title, weight / total_weight))
             .collect();
 
         graph.insert(movies[i].title.clone(), normalized_edges);
+        } else {
+            graph.insert(movies[i].title.clone(), vec![]);
+        }
+        
     }
 
     graph
@@ -54,8 +60,9 @@ pub fn compute_pagerank(graph: &HashMap<String, Vec<(String, f32)>>, damping: f3
             }
             new_ranks.insert(node.clone(), (1.0 - damping) / num_nodes + damping * rank_sum);
         }
+        
         ranks = new_ranks;
+        
     }
-
     ranks
 }
